@@ -1,0 +1,22 @@
+{
+  "name": "lisabot_api",
+  "version": "1.0.0",
+  "description": "Ante la necesidad de requerir cada vez más sofisticados mecanismos para el uso de LisaBot, y observando el potencial que tiene el uso de la API de OpenAI, tomé la decisión de crear una propia API para su uso, una claramente personalizada que incluya todas aquellas características embebidas en el código fuente de LisaBot, un código muy poco mantenible y sobre todo anticuado.",
+  "main": "index.js",
+  "scripts": {
+    "dev": "nodemon src/index.js"
+  },
+  "type": "module",
+  "keywords": [],
+  "author": "DoraxDev",
+  "license": "ISC",
+  "devDependencies": {
+    "nodemon": "^2.0.20"
+  },
+  "dependencies": {
+    "dotenv": "^16.0.3",
+    "express": "^4.18.2",
+    "mongodb": "^5.1.0",
+    "openai": "^3.1.0"
+  }
+}
