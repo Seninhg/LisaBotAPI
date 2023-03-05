@@ -29,19 +29,19 @@ class Chatbot{
         this.#config = combineObject(this.#config, config)
     }
     async talk(prompt, info){ //info contiene el userName, botName y el context
-        const {userName, botName, context} = info
-        //context have all, the context :v, and the memory
+        const {userName, botName, context, memory} = info
+        //el contexto y la memoria son distintas, básicamente el contexto es fijo y la memoria variable
         const completionRequest = this.#config;
-        //prompt y stop provienen de la información parsada por el controlador y reemplazan todo lo colocado en el config
-        completionRequest["prompt"] = `${context}\n${userName}:${prompt}\n${botName}:`;
+        //prompt y stop provienen de la información pasada por el controlador y reemplazan todo lo colocado en el config
+        completionRequest["prompt"] = `${context}\n${memory}${userName}:${prompt}\n${botName}:`;
         completionRequest["stop"] = [` ${userName}:`, ` ${botName}:`];
+
         //finalmente se pasa todo ese objeto de petición a la función de completado
         try{
             return await openai.createCompletion(completionRequest);
         }catch(err){
             throw err.response.data;
-        }
-            
+        }             
     }
     static filtroV1 = filtroV1
     static filtroV2 = filtroV2

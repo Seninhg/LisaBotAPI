@@ -5,9 +5,9 @@ import { MONGO_HOST } from "../config.js";
 const uri = MONGO_HOST;
 
 async function connect(){
+    const client = new MongoClient(uri);
     try{
-        const client = new MongoClient(uri);
-        await client.connect();
+        await client.connect()
         //console.log("conected to mongodb");
         return client.db("chatbot_db")
     }catch(err){
