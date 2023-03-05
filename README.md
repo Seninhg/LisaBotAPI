@@ -1,4 +1,5 @@
-## Proyecto API para LISABOT
+## Proyecto Chatbot_API
+Proyecto que funciona como intermediaro entre la API de OpenAI y el desarrollador, ofreciendo una primita función de gestión de usuarios y memoria a corto plazo.
 
 ### Motivo:
 Ante la necesidad de requerir cada vez más sofisticados mecanismos para el uso de LisaBot, y observando el potencial que tiene el uso de la API de OpenAI, tomé la decisión de crear una propia API para su uso, una claramente personalizada que incluya todas aquellas características embebidas en el código fuente de LisaBot, un código muy poco mantenible y sobre todo anticuado.
