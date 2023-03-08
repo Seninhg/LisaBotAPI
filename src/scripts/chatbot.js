@@ -14,35 +14,32 @@ Aquí irá solo lo que tenga que ver con el Chatbot y la API de OPENAI, el resto
 
 class Chatbot{
     #config = {
-        model: "text-davinci-003",
-        prompt: null,
+        model: "text-curie-001",
+        prompt: null, //se define a la llamada del completado
         temperature: 0.9,
         max_tokens: 80,
         top_p: 1,
         frequency_penalty: 0.6,
         presence_penalty: 0.6,
-        stop: null
+        stop: null //se define a la llamada del completado
     }
     constructor(config = this.#config){
-        /*prompt y stop no deberían pasarse, pues estos se definen al momento de usar talk*/
-        //la siguiente función combina los campos pasados por el cliente y los por defecto para evitar undefined en algunas propiedades
         this.#config = combineObject(this.#config, config)
     }
-    async talk(prompt, info){ //info contiene el userName, botName y el context
-        const {userName, botName, context, memory} = info
-        //el contexto y la memoria son distintas, básicamente el contexto es fijo y la memoria variable
-        const completionRequest = this.#config;
-        //prompt y stop provienen de la información pasada por el controlador y reemplazan todo lo colocado en el config
-        completionRequest["prompt"] = `${context}\n${memory}${userName}:${prompt}\n${botName}:`;
-        completionRequest["stop"] = [` ${userName}:`, ` ${botName}:`];
-
-        //finalmente se pasa todo ese objeto de petición a la función de completado
+    async chatLisa(prompt, dialogs, context, replaceTags){
+        const {userName, botName} = replaceTags;
         try{
-            return await openai.createCompletion(completionRequest);
+            //configuramos adecuamente #config para tener los parámetros necesarios
+            this.#config["prompt"] = `${context}\n${dialogs}\n${userName}:${prompt}\n${botName}:`;
+            this.#config["stop"] = [` ${userName}:`,` ${botName}:`, `\n${userName}:`,`\n${botName}:`]
+
+            const response = await openai.createCompletion(this.#config)
+            return response.data.choices[0];
         }catch(err){
-            throw err.response.data;
-        }             
+            return err;
+        }
     }
+
     static filtroV1 = filtroV1
     static filtroV2 = filtroV2
 }

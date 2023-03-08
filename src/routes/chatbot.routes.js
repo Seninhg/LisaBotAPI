@@ -1,8 +1,8 @@
 import { Router } from "express";
-import { talk } from "../controllers/chatbot.controller.js";
+import { lisaBot } from "../controllers/chatbot.controller.js";
 
 const router = Router()
 
-router.post("/talk", talk)
+router.post("/lisaBot", lisaBot)
 
 export default router;

@@ -3,99 +3,100 @@ import connectToDatabase from "../scripts/mongodb.js";
 //instancia del chatbot
 const chatbot = new Chatbot()
 
-function replaceNames(prompt, replaceInfo){
-    //tokenizado a lo loco pa
-    const tokens = prompt.split(" ");
-    for (let token in tokens){
-        for (let replaceTag in replaceInfo){
-            tokens[token] = tokens[token].replace(`{${replaceTag}}`, replaceInfo[replaceTag]);
-        }
-    }
-    //se los termina fucionando de nuevo
-    return tokens.join(" ")
+const configBot = {
+    name: "Lisa",
+    context: "Esta es una conversación entre Lisa, una asistente virtual llena de energía que tiene el propósito de entrener y ayudar a los integrantes de un grupo de whatsapp. Es muy sarcástica y le encanta molestar a los otros usuarios. Cree tener 18 años, se identifica como mujer.",
+    max_length_memory: 5,
 }
 
-const max_length_memory = 5;
-
-async function saveInMemory(data, usersCollection){
-    const {prompt, text, idUser, length_memory} = data;
-    try {
-        //-------Almacenamiento en la memoria del bot--------
-        await usersCollection.updateOne({idUser}, {
-            $push: {conversations: {
-                userName: prompt,
-                botName: text
-            }}
-        })
-        
-        //verificación para el límite de memoria
-        if(length_memory >= max_length_memory){
-            const result = await usersCollection.updateOne({idUser}, {$pop: {conversations: -1}});
-            if(result.modifiedCount == 1){
-                console.log("Memory cleaned");
-            }
-        }    
-    } catch (error) {
-        throw error;
-    }
-}
-
-function joinMemory(conversations, roles){
-    let memory = "";
-    conversations.forEach((conversation)=>{
-        memory += `${roles.userName}: ${conversation.userName}\n${roles.botName}: ${conversation.botName}\n`;
-    })
-    return memory;
-}
-
-export const talk = async (req, res)=>{
-    const {prompt, replaceTags, context, idUser} = req.body
-
-    /* 
-        Instrucciones:
-        context debe por obligación al menos incluir el userName y botName
-            estos 2 podemos obtenerlos de la base de datos a partir del idUser
-            Una vez obtenidos se asignan a context
-        userName y botName ya no se pasarán desde el cliente
-        replaceTags contendrá opcionalmente ciertas etiquetas o variables para algunos nombres o datos que se pasarán al context, algo extraño pero funcional. Pero obligatoriamente se pasarán los datos obtenidos de la db a replaceTags para poder crear un buen context
-    */
+/**esta ruta no requerirá verificación y en caso de no existir un usuario en la bd, lo crea**/
+export const lisaBot = async (req, res)=>{
+    const {prompt, idUser} = req.body;
 
     try{
-        const connect = await connectToDatabase();
-        const usersCollection = connect.collection("users");
-
-        //se hace la búsqueda del usuario por id
-        const userFind = await usersCollection.findOne({idUser})
-        //se añaden los nombres correspondientes
-        replaceTags["userName"] = userFind.userName;
-        replaceTags["botName"] = userFind.botName;
-
-        //con el contexto pasado del cliente, reemplazamos aquellos campos proporcionados y especificados en replace tags
-        const contextReplace = replaceNames(context, replaceTags)
-        const {userName, botName} = replaceTags;
-
-        //se obtiene la memoria de la consulta y se la formatea adecuadamente
-        const memory = joinMemory(userFind.conversations, {userName, botName});
-
-        ///luego creamos un objeto que contendrá lo necesario para hacer el completado
-        const info = {
-            userName: userName, botName: botName, context: contextReplace, memory
+        const chatbotDb = await connectToDatabase();
+        //se husmea en la base de datos de usuarios buscando al actual
+        const currentUser = await createDefaultUser(idUser);
+        if(currentUser == null){
+            throw {status: "fail", msg: "No se pudo crear al usuario :("}
         }
-
-        //finalmente le pasamos a nuestra función talk el prompt y la información y esperamos una respuesta, en caso de haber un error el catch lo captura y envía al usuario
-        const result = await chatbot.talk(prompt, info);
-        const {text} = result.data.choices[0];
-        
-        //se almacena en la memoria los datos necesarios
-        await saveInMemory({prompt, text, idUser, length_memory: userFind.conversations.length}, usersCollection);
-
-        //de ir todo bien, se envía la respuesta/texto al usuario
-        res.send(text);
-
-
+        //una vez se comprueba o genera su existencia, se procede a enlazarlo con la colección lisabot
+        const lisaCollection = chatbotDb.collection("lisaBot");
+        const userParams = await lisaCollection.findOne({idUser})
+        //preparamos y formateamos los datos
+        const userName = currentUser.userName;
+        const botName = configBot.name;
+        const dialogs = mergeDialogs(userParams.dialogs, {userName, botName});
+        //ahora sí bartolito, hagamos el completado
+        const response = await chatbot.chatLisa(prompt, dialogs, configBot.context, {userName, botName});    
+        res.status(200).send(response)
+        /*
+            response: respuesta del bot
+            prompt: entrada del usuario
+            memory_length: longitud de la memoria hasta el momento(antes del almacenamiento actual)
+            idUser: id del usuario
+            lisaCollection: colección que contiene las conversaciones
+        */
+        if(await saveInMemory({response: response.text, prompt, memory_length: userParams.dialogs.length}, idUser, lisaCollection)){
+            console.log("Guardado en memoria");
+        }
     }catch(err){
-        console.log(err)
-        res.json(err);
+        res.status(400).send(err);
     }
+}
 
+async function saveInMemory(data, idUser,collection){
+    try{
+        const result = await collection.updateOne({idUser}, {$push: {dialogs: {
+            userName: data.prompt,
+            botName: data.response
+        }}})
+        //si la memoria supera la cuota máxima
+        if(data.memory_length > configBot.max_length_memory){
+            await collection.updateOne({idUser}, {$pop: {dialogs: -1}}) //eliminar el primer elemento del array
+        }
+        return true;
+    }catch(err){
+        throw err;
+    }
+    return false;
+}   
+
+async function createDefaultUser(idUser){
+    const chatbotDb = await connectToDatabase();
+    const userCollection = chatbotDb.collection("users");
+    //se verifica si el usuario existe ya
+    const currentUser = await userCollection.findOne({idUser});
+    if(currentUser != null || currentUser != undefined){
+        //si se encuentra en una primera instancia, entonces solamente se lo retorna
+        return currentUser;
+    }
+    /*Suponemos que al no existir el usuario, entonces tampoco existe su enlace con la colección LisaBot, por lo que lo creamos aquí*/    
+    await userCollection.insertOne({
+        idUser,
+        userName: "User",
+        botName: null
+    })
+    //creación del enlace
+    const lisaCollection = chatbotDb.collection("lisaBot");
+    await lisaCollection.insertOne({
+        idUser,
+        dialogs: [],
+    })
+    
+    const createdUser = await userCollection.findOne({idUser});
+    if(createdUser != null || currentUser != undefined){
+        return createdUser;
+    }else{
+        return null;
+    }
+}
+
+function mergeDialogs(dialogs, replaceTags){
+    const {userName, botName} = replaceTags;
+    let memory = "";
+    dialogs.forEach(dialog => {
+        memory += `${userName}: ${dialog["userName"]}\n${botName}: ${dialog["botName"]}\n`;
+    });
+    return memory.trim()
 }

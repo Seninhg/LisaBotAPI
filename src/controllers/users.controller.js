@@ -14,7 +14,7 @@ function validate(scheema, values){
     return {status: "success"}
 }
 
-
+//obtener usuarios
 export const getUsers = async (req, res)=>{
     try{
         const chatbotDb = await connectToDatabase();
@@ -27,6 +27,7 @@ export const getUsers = async (req, res)=>{
         res.json(err);
     }
 }
+//obtener usuario por id
 export const getUser = async (req, res)=>{
     //parámetro idUser
     const idUser = req.params.idUser;    
@@ -48,7 +49,7 @@ export const getUser = async (req, res)=>{
         res.json(err);
     }
 }
-
+//crear nuevo usuario
 export const setNewUser = async (req, res)=>{
     const {idUser, userName, botName} = req.body;
 
@@ -67,7 +68,7 @@ export const setNewUser = async (req, res)=>{
         const usersCollection = chatbotDb.collection("users");
 
         const result = await usersCollection.insertOne({
-            idUser, userName, botName, conversations: []
+            idUser, userName, botName
         })
 
         res.send("usuario ingresado con éxito: \nInsertId:" + result.insertedId);
@@ -77,7 +78,7 @@ export const setNewUser = async (req, res)=>{
     }
     
 }
-
+//borrar un usuario
 export const deleteUser = async (req, res)=>{
     const idUser = req.params.idUser;
     
