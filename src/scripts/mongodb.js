@@ -10,9 +10,8 @@ async function connect(){
         await client.connect()
         //console.log("conected to mongodb");
         return client.db("chatbot_db")
-    }catch(err){
-        console.log("No se pudo conectar a la base de datos");
-        throw err;
+    }catch(err){        
+        throw {msg: "No se pudo conectar a la base de datos", content: err};
     }
 }
 

@@ -1,5 +1,6 @@
 import Chatbot from "../scripts/chatbot.js";
 import connectToDatabase from "../scripts/mongodb.js";
+import { scheemaInputUser, validate } from "../scripts/validations.js";
 //instancia del chatbot
 const chatbot = new Chatbot()
 
@@ -12,7 +13,14 @@ const configBot = {
 /**esta ruta no requerirá verificación y en caso de no existir un usuario en la bd, lo crea**/
 export const lisaBot = async (req, res)=>{
     const {prompt, idUser} = req.body;
-
+    
+    const validData = validate(scheemaInputUser, {
+        prompt, idUser
+    })
+    if(validData.status == "fail"){
+        res.send(validData.msg)
+        return;
+    }
     try{
         const chatbotDb = await connectToDatabase();
         //se husmea en la base de datos de usuarios buscando al actual
