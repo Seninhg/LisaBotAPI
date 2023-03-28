@@ -1,9 +1,11 @@
 import {Router} from "express"
-import { getDialogs } from "../controllers/dialogs.controller.js";
+import { getDialogs, getDialog } from "../controllers/dialogs.controller.js";
 
 const router = Router()
 
+//ruta administrativa
 router.get("/dialogs", getDialogs);
-router.get("/dialogs/:id", );
+//ruta para usuarios
+router.get("/dialogs/:idUser", getDialog);
 
 export default router;

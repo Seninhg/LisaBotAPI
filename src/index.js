@@ -19,7 +19,7 @@ app.use("/api", dialogsRouter)
 
 //middleware para endpoints no encontrados
 app.use((req, res, next)=>{
-    res.send({
+    res.status(404).send({
         msg: "endpoint not found"
     })
 })

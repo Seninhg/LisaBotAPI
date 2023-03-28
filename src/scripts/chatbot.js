@@ -1,5 +1,6 @@
 import { OPENAI_API_KEY } from "../config.js";
 import { Configuration, OpenAIApi } from "openai";
+import { createReadStream } from "fs"
 
 
 const configuration = new Configuration({
@@ -40,10 +41,14 @@ class Chatbot{
         }
     }
 
+
     static filtroV1 = filtroV1
     static filtroV2 = filtroV2
 }
 
+
+
+/*Funciones auxiliares*/
 function combineObject(obj1, obj2){
     /*firts param is the obj for default
     second param is the obj set by the user

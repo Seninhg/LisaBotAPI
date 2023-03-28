@@ -53,6 +53,8 @@ export const lisaBot = async (req, res)=>{
     }
 }
 
+
+//funciones auxiliares
 async function saveInMemory(data, idUser,collection){
     try{
         const result = await collection.updateOne({idUser}, {$push: {dialogs: {

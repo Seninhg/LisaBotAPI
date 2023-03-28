@@ -8,7 +8,7 @@ export const getUsers = async (req, res)=>{
         const usersCollection = chatbotDb.collection("users");
 
         const result = await (usersCollection.find({})).toArray()
-        res.send(result);
+        res.status(200).json({status: "succes", data: result})
     }catch(err){
         console.log(err)
         res.json(err);
@@ -18,19 +18,13 @@ export const getUsers = async (req, res)=>{
 export const getUser = async (req, res)=>{
     //parámetro idUser
     const idUser = req.params.idUser;    
-    //se valida con nuestra función el idUser
-    const validar = validate(scheemaInputUser, {idUser})
-    if(validar.status == "fail"){
-        res.send(validar.msg)
-        return;
-    }
 
     try{
         const chatbotDb = await connectToDatabase();
         const usersCollection = chatbotDb.collection("users");
 
         const result = await (usersCollection.findOne({idUser}))
-        result == null?res.send({status: "fail", msg: "no se encuentra registrado dicho usuario"}):res.send(result);
+        result == null?res.send({status: "fail", msg: "no se encuentra registrado dicho usuario"}):res.status(200).send({status: "succes", data: result});
     }catch(err){
         console.log(err)
         res.json(err);
@@ -69,7 +63,7 @@ export const setNewUser = async (req, res)=>{
 }
 //borrar un usuario
 export const deleteUser = async (req, res)=>{
-    const idUser = req.params.idUser;
+    const idUser = req.params.idUser; //not defined validation
     const validar = validate(scheemaInputUser, {idUser})
     if(validar.status == "fail"){
         res.send(validar.msg)
@@ -92,7 +86,7 @@ export const deleteUser = async (req, res)=>{
             idUser: result.value.idUser,
             userName: result.value.userName
         };
-        res.send({status: "success", msg})
+        res.status(200).json({status: "success", msg})
     }catch(err){
         console.log(err);
         res.json(err);
@@ -137,7 +131,7 @@ export const updateUser = async (req, res)=>{
             res.send({status: "fail", msg: "El usuario ya tiene esos datos 0_o"})
             return;
         }
-        res.send({status: "succes", msg: "Usuario actualizado con éxito!"})
+        res.send({status: "success", msg: "Usuario actualizado con éxito!"})
     }catch(err){
         console.log(err)
         res.json(err);

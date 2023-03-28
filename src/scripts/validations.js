@@ -8,7 +8,7 @@ export const scheemaUser = Joi.object({
 
 export const scheemaInputUser = Joi.object({
     idUser: Joi.string().min(9).required(),
-    prompt: Joi.string().min(1).max(70)
+    prompt: Joi.string().min(1).max(70).required(),
 })
 
 export const scheemaPatchUser = Joi.object({
@@ -16,6 +16,7 @@ export const scheemaPatchUser = Joi.object({
     userName: Joi.string().min(3).max(12).alphanum(),
     botName: Joi.string().min(3).max(12).alphanum()
 });
+
 
 
 //función que toma un esquema de modelo y luego valores a evaluar
