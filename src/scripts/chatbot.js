@@ -61,6 +61,8 @@ function combineObject(obj1, obj2){
     return obj1;
 }
 
+/*FILTROS PROPORCIONADOR POR OPENAI*/
+
 async function filtroV1(entrada){
     /**
      * 0: Seguro

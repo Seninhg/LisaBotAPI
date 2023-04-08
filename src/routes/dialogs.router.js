@@ -1,11 +1,14 @@
 import {Router} from "express"
-import { getDialogs, getDialog } from "../controllers/dialogs.controller.js";
+import { getDialogs, getDialog, deleteDialogs } from "../controllers/dialogs.controller.js";
 
 const router = Router()
 
-//ruta administrativa
+//-------------------rutas administrativas-------------------
 router.get("/dialogs", getDialogs);
-//ruta para usuarios
+
+router.delete("/dialogs/:idUser", deleteDialogs);
+
 router.get("/dialogs/:idUser", getDialog);
+
 
 export default router;

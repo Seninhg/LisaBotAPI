@@ -33,11 +33,11 @@ export const lisaBot = async (req, res)=>{
         const userParams = await lisaCollection.findOne({idUser})
         //preparamos y formateamos los datos
         const userName = currentUser.userName;
-        const botName = configBot.name;
+        const botName = configBot.name; //en este caso utilizamos el nombre configurado en el sistema
         const dialogs = mergeDialogs(userParams.dialogs, {userName, botName});
         //ahora sí bartolito, hagamos el completado
         const response = await chatbot.chatLisa(prompt, dialogs, configBot.context, {userName, botName});    
-        res.status(200).send(response)
+        res.status(200).json({status: "success", msg: response})
         /*
             response: respuesta del bot
             prompt: entrada del usuario
@@ -46,10 +46,10 @@ export const lisaBot = async (req, res)=>{
             lisaCollection: colección que contiene las conversaciones
         */
         if(await saveInMemory({response: response.text, prompt, memory_length: userParams.dialogs.length}, idUser, lisaCollection)){
-            console.log("Guardado en memoria");
+            //console.log("Guardado en memoria");
         }
     }catch(err){
-        res.status(400).send(err);
+        res.status(400).send({status: "fail", msg: err});
     }
 }
 

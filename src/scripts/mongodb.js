@@ -1,8 +1,8 @@
 import {MongoClient } from "mongodb";
-import { MONGO_HOST } from "../config.js";
+import { MONGO_URL } from "../config.js";
 
 
-const uri = MONGO_HOST;
+const uri = MONGO_URL;
 
 async function connect(){
     const client = new MongoClient(uri);

@@ -1,5 +1,6 @@
 import express from "express";
 import {PORT, HOST} from "./config.js";
+//rutas de la API
 import indexRouter from "./routes/index.routes.js";
 import chatbotRouter from "./routes/chatbot.routes.js";
 import usersRouter from "./routes/users.routes.js";
@@ -20,10 +21,9 @@ app.use("/api", dialogsRouter)
 //middleware para endpoints no encontrados
 app.use((req, res, next)=>{
     res.status(404).send({
-        msg: "endpoint not found"
+        msg: "(404) endpoint not found"
     })
 })
-
 
 app.listen(PORT, HOST, ()=>{
     console.log("Server running on " + `http://${HOST}:${PORT}`);

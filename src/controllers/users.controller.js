@@ -11,7 +11,7 @@ export const getUsers = async (req, res)=>{
         res.status(200).json({status: "succes", data: result})
     }catch(err){
         console.log(err)
-        res.json(err);
+        res.json({status: "fail", data: err});
     }
 }
 //obtener usuario por id
@@ -27,7 +27,7 @@ export const getUser = async (req, res)=>{
         result == null?res.send({status: "fail", msg: "no se encuentra registrado dicho usuario"}):res.status(200).send({status: "succes", data: result});
     }catch(err){
         console.log(err)
-        res.json(err);
+        res.json({status: "fail", data: err});
     }
 }
 //crear nuevo usuario
@@ -55,10 +55,17 @@ export const setNewUser = async (req, res)=>{
         const result = await usersCollection.insertOne({
             idUser, userName, botName
         })
+        //Además se procede a crear su enlace con la colección LisaBot
+        const lisaCollection = chatbotDb.collection("lisaBot");
+        await lisaCollection.insertOne({
+            idUser,
+            dialogs: [],
+        })
+
         res.send({status: "success",msg: "usuario ingresado con éxito: \nInsertId:" + result.insertedId});
     }catch(err){
         console.log(err);
-        res.json(err);
+        res.json({status: "fail", data: err});
     }
 }
 //borrar un usuario
@@ -89,7 +96,7 @@ export const deleteUser = async (req, res)=>{
         res.status(200).json({status: "success", msg})
     }catch(err){
         console.log(err);
-        res.json(err);
+        res.json({status: "fail", data: err});
     }
 }
 
@@ -134,6 +141,6 @@ export const updateUser = async (req, res)=>{
         res.send({status: "success", msg: "Usuario actualizado con éxito!"})
     }catch(err){
         console.log(err)
-        res.json(err);
+        res.json({status: "fail", data: err});
     }
 }

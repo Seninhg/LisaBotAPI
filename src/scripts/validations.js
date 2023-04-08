@@ -8,7 +8,7 @@ export const scheemaUser = Joi.object({
 
 export const scheemaInputUser = Joi.object({
     idUser: Joi.string().min(9).required(),
-    prompt: Joi.string().min(1).max(70).required(),
+    prompt: Joi.string().min(1).max(100).required(),
 })
 
 export const scheemaPatchUser = Joi.object({
