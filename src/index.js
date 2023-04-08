@@ -1,4 +1,5 @@
 import express from "express";
+import cors from "cors"
 import {PORT, HOST} from "./config.js";
 //rutas de la API
 import indexRouter from "./routes/index.routes.js";
@@ -7,6 +8,9 @@ import usersRouter from "./routes/users.routes.js";
 import dialogsRouter from "./routes/dialogs.router.js";
 
 const app = express();
+
+//cors
+app.use(cors())
 
 //middleware para los request type app/json
 app.use(express.json())
