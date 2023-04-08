@@ -12,12 +12,6 @@ const app = express();
 //cors
 app.use(cors())
 
-//cookies
-app.use((req, res, next) => {
-    res.setHeader('Set-Cookie', 'HttpOnly;Secure;SameSite=None');
-    next();
-});
-
 //middleware para los request type app/json
 app.use(express.json())
 
