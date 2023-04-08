@@ -4,7 +4,8 @@
   "description": "Ante la necesidad de requerir cada vez más sofisticados mecanismos para el uso de LisaBot, y observando el potencial que tiene el uso de la API de OpenAI, tomé la decisión de crear una propia API para su uso, una claramente personalizada que incluya todas aquellas características embebidas en el código fuente de LisaBot, un código muy poco mantenible y sobre todo anticuado.",
   "main": "index.js",
   "scripts": {
-    "dev": "nodemon src/index.js"
+    "dev": "nodemon src/index.js",
+    "start": "node src/index.js"
   },
   "type": "module",
   "keywords": [],
